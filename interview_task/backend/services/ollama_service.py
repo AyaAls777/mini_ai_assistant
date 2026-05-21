@@ -1,11 +1,10 @@
-# Import requests library
-# to send HTTP requests to Ollama
+
 import requests
 
-#Function to detect user intent
+#detect user intent
 def detect_intent(user_message):
 
-    # Creating AI prompt
+    # AI prompt
     prompt = f"""
     You are an intent classifier.
 
@@ -25,16 +24,15 @@ def detect_intent(user_message):
     {user_message}
     """
 
-    # Send POST request to Ollama local API
+    #Send POST request to Ollama local API
     response = requests.post(
 
-        # Ollama local server endpoint
         "http://localhost:11434/api/generate",
 
         # Data sent to Ollama
         json={
 
-            # AI model to use
+            #AI model to use
             "model": "llama3",
 
             #Prompt sent to the AI
