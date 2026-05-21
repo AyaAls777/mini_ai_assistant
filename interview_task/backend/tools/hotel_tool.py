@@ -1,7 +1,7 @@
-# Hotel tool function
+#Hotel tool function
 def hotel_tool():
 
-    # Return fake hotel data
+    #hotel data
     return {
         "message": "Hotels found",
         "ui_type": "hotel_page",
@@ -23,21 +23,14 @@ def hotel_tool():
 
 def get_cheaper_hotels():
 
-    # Get all hotels from hotel tool
     hotels = hotel_tool()["data"]["hotels"]
-
-    # Keep only hotels under $100
     cheaper_hotels = []
 
     for hotel in hotels:
 
-        #converting price to number
         price = int(hotel["price"].replace("$", ""))
-
- 
         if price < 100:
 
-            # Add to cheaper hotel list
             cheaper_hotels.append(hotel)
 
     return {
