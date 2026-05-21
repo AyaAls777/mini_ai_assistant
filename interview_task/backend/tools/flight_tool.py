@@ -23,21 +23,17 @@ def flight_tool():
 
 def get_cheaper_flights():
 
-    # Get all flights from flight tool
     flights = flight_tool()["data"]["flights"]
 
-    # Keep only flights under $500
+    #Keep only flights under $500
     cheaper_flights = []
 
     for flight in flights:
 
-        # Remove dollar sign and convert price to number
         price = int(flight["price"].replace("$", ""))
 
-        # If flight is cheap
         if price < 500:
 
-            # Add to cheaper flight list
             cheaper_flights.append(flight)
 
     return {
