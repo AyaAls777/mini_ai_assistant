@@ -104,20 +104,7 @@ Streamlit is used as a simple local frontend to demonstrate the assistant quickl
 
 ## Screenshots
 
-### Streamlit Frontend
-![Streamlit UI](screenshots/Screenshot.png)
-
-### Hotel Search Response
-![Hotel Search](screenshots/Screenshot2.png)
-
-### Hotel Search follow up
-![Hotel Follow up](screenshots/Screenshot3.png)
-
-### Flight Search Response
-![Flight Search](screenshots/Screenshot4.png)
-
-### Flight Search follow up
-![Flight Follow Up](screenshots/Screenshot5.png)
+All project screenshots can be found in the `/screenshots` folder.
 
 ### Tool-Based Architecture
 
