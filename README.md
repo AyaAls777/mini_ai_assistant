@@ -102,6 +102,23 @@ FastAPI is used to expose a clean `/chat` API endpoint. The backend handles requ
 
 Streamlit is used as a simple local frontend to demonstrate the assistant quickly. It sends messages to FastAPI and displays the returned data based on the `ui_type` field.
 
+## Screenshots
+
+### Streamlit Frontend
+![Streamlit UI](screenshots/Screenshot.png)
+
+### Hotel Search Response
+![Swagger Testing](screenshots/Screenshot2.png)
+
+### Hotel Search follow up
+![Hotel Search](screenshots/Screenshot3.png)
+
+### Flight Search Response
+![Flight Search](screenshots/Screenshot4.png)
+
+### Flight Search follow up
+![Memory Detection](screenshots/Screenshot5.png)
+
 ### Tool-Based Architecture
 
 Each task is handled by a separate tool function. For example:
