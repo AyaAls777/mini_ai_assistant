@@ -6,16 +6,19 @@ The system accepts user messages, detects intent using a locally running LLM, ro
 
 ---
 
-## Features
+## Prerequisites
 
-- Local AI intent detection using Ollama
-- FastAPI backend with `/chat` endpoint
-- Streamlit frontend
-- Mock hotel and flight tools
-- Structured JSON responses
-- Short-term memory for follow-up questions
-- Dynamic frontend rendering based on `ui_type`
-- Fully local/offline after setup
+Before running the project, make sure you have:
+
+- Python 3 installed
+- Ollama installed
+- Llama3 model downloaded through Ollama
+- Required Python packages installed:
+  - fastapi
+  - uvicorn
+  - requests
+  - streamlit
+  - pydantic
 
 ---
 
@@ -27,6 +30,19 @@ The system accepts user messages, detects intent using a locally running LLM, ro
 - Streamlit
 - Pydantic
 - Requests
+
+---
+
+## Features
+
+- Local AI intent detection using Ollama
+- FastAPI backend with `/chat` endpoint
+- Streamlit frontend
+- Mock hotel and flight tools
+- Structured JSON responses
+- Short-term memory for follow-up questions
+- Dynamic frontend rendering based on `ui_type`
+- Fully local/offline after setup
 
 ---
 
@@ -48,21 +64,277 @@ interview_task/
 
 ---
 
-## How It Works
+## Architecture Overview
 
-1. The user enters a message in the Streamlit frontend.
-2. Streamlit sends the message to the FastAPI `/chat` endpoint.
-3. FastAPI sends the message to Ollama for intent detection.
-4. Ollama returns an intent such as `hotel_search` or `flight_search`.
-5. FastAPI routes the request to the correct tool.
-6. The tool returns structured JSON.
-7. Streamlit reads the `ui_type` field and displays the correct UI.
+```text
+User
+ ↓
+Streamlit Frontend
+ ↓
+FastAPI Backend
+ ↓
+Ollama Local LLM
+ ↓
+Intent Detection
+ ↓
+Tool Router
+ ↓
+Mock Tool Execution
+ ↓
+Structured JSON Response
+ ↓
+Streamlit Dynamic UI Rendering
+```
+
+---
+
+## Design Decisions
+
+### Local LLM
+
+Ollama is used so the AI model runs locally on the machine. This keeps the project offline after the model has been downloaded.
+
+### FastAPI Backend
+
+FastAPI is used to expose a clean `/chat` API endpoint. The backend handles request validation, intent routing, tool execution, and memory management.
+
+### Streamlit Frontend
+
+Streamlit is used as a simple local frontend to demonstrate the assistant quickly. It sends messages to FastAPI and displays the returned data based on the `ui_type` field.
+
+### Tool-Based Architecture
+
+Each task is handled by a separate tool function. For example:
+
+- `hotel_tool()` handles hotel responses
+- `flight_tool()` handles flight responses
+- `get_cheaper_hotels()` filters cheaper hotel results
+- `get_cheaper_flights()` filters cheaper flight results
+
+This keeps the project modular and easier to expand.
+
+### Short-Term Memory
+
+The backend stores the last few conversation turns in memory. This allows the assistant to understand follow-up messages such as:
+
+```text
+show cheaper ones
+```
+
+after the user previously searched for hotels or flights.
+
+---
+
+## Setup Steps
+
+### 1. Install Python packages
+
+```bash
+pip3 install fastapi uvicorn requests streamlit pydantic
+```
+
+### 2. Run Ollama model
+
+Make sure Ollama is installed and running.
+
+```bash
+ollama run llama3
+```
+
+### 3. Run FastAPI backend
+
+From the `backend` folder:
+
+```bash
+python3 -m uvicorn main:app --reload
+```
+
+The backend will run at:
+
+```text
+http://127.0.0.1:8000
+```
+
+Swagger API docs are available at:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+### 4. Run Streamlit frontend
+
+From the main project folder:
+
+```bash
+python3 -m streamlit run frontend/streamlit_app.py
+```
+
+The frontend will run at:
+
+```text
+http://localhost:8501
+```
+
+---
+
+## API Payload Examples
+
+### Hotel Search
+
+Request:
+
+```json
+{
+  "message": "show hotels in dubai"
+}
+```
+
+Response:
+
+```json
+{
+  "message": "Hotels found",
+  "ui_type": "hotel_page",
+  "data": {
+    "hotels": [
+      {
+        "name": "Grand Palace",
+        "price": "$220",
+        "rating": 4.8
+      },
+      {
+        "name": "Budget Inn",
+        "price": "$90",
+        "rating": 4.1
+      }
+    ]
+  }
+}
+```
+
+---
+
+### Flight Search
+
+Request:
+
+```json
+{
+  "message": "find flights to london"
+}
+```
+
+Response:
+
+```json
+{
+  "message": "Flights found",
+  "ui_type": "flight_page",
+  "data": {
+    "flights": [
+      {
+        "airline": "Emirates",
+        "price": "$450",
+        "destination": "London"
+      },
+      {
+        "airline": "Qatar Airways",
+        "price": "$850",
+        "destination": "London"
+      }
+    ]
+  }
+}
+```
+
+---
+
+### Follow-Up Question
+
+Request:
+
+```json
+{
+  "message": "show cheaper ones"
+}
+```
+
+If the previous intent was `flight_search`, the backend returns:
+
+```json
+{
+  "message": "Cheaper flights found",
+  "ui_type": "flight_page",
+  "data": {
+    "flights": [
+      {
+        "airline": "Emirates",
+        "price": "$450",
+        "destination": "London"
+      }
+    ]
+  }
+}
+```
+
+---
+
+## curl Instructions
+
+### Hotel Search
+
+```bash
+curl -X POST "http://127.0.0.1:8000/chat" \
+-H "Content-Type: application/json" \
+-d '{"message": "show hotels in dubai"}'
+```
+
+### Flight Search
+
+```bash
+curl -X POST "http://127.0.0.1:8000/chat" \
+-H "Content-Type: application/json" \
+-d '{"message": "find flights to london"}'
+```
+
+### Follow-Up Search
+
+```bash
+curl -X POST "http://127.0.0.1:8000/chat" \
+-H "Content-Type: application/json" \
+-d '{"message": "show cheaper ones"}'
+```
+
+---
+
+## Postman Instructions
+
+1. Open Postman.
+2. Create a new POST request.
+3. Enter this URL:
+
+```text
+http://127.0.0.1:8000/chat
+```
+
+4. Go to the Body tab.
+5. Select raw.
+6. Select JSON.
+7. Enter a request body such as:
+
+```json
+{
+  "message": "show hotels in dubai"
+}
+```
+
+8. Click Send.
 
 ---
 
 ## Current Memory Logic
 
-The app stores the last few conversation turns in memory.
+The app stores the last few conversation turns in a simple in-memory list.
 
 Each memory item contains:
 
@@ -73,13 +345,31 @@ Each memory item contains:
 }
 ```
 
-This allows the backend to handle follow-up messages like:
+This allows the backend to understand follow-up messages.
+
+Example:
 
 ```text
-show cheaper ones
+User: find flights to london
+Assistant: returns flight results
+
+User: show cheaper ones
+Assistant: understands that "ones" refers to flights
 ```
 
-If the last intent was `flight_search`, the backend returns cheaper flights.
+---
+
+## Offline Operation
+
+After the Python dependencies are installed and the Ollama model is downloaded, the system runs locally.
+
+No OpenAI, Claude, or external hotel/flight APIs are used.
+
+The only local services required are:
+
+- Ollama running locally
+- FastAPI running locally
+- Streamlit running locally
 
 ---
 
@@ -97,30 +387,26 @@ if "cheaper" in user_message and last_intent == "flight_search":
 
 While this works, it is still somewhat literal and keyword-dependent.
 
-A more advanced approach would be to let the LLM understand the conversation context dynamically instead of manually checking words.
+A better method would be to let the LLM analyze the conversation memory and current message together.
 
-Example future flow:
-
-Conversation history:
+Example future prompt:
 
 ```text
+Conversation history:
 User: find flights to london
 Intent: flight_search
 
 Current message:
 show cheaper ones
-```
 
-The AI could then return structured understanding such as:
-
-```json
+Return JSON:
 {
   "intent": "flight_search",
   "modifier": "cheaper"
 }
 ```
 
-This would allow the assistant to naturally understand variations like:
+This would allow the assistant to understand more natural phrases such as:
 
 - cheaper options
 - low-cost flights
@@ -130,13 +416,13 @@ This would allow the assistant to naturally understand variations like:
 - anything cheaper?
 - show budget hotels instead
 
-without manually hardcoding specific keywords.
+without manually hardcoding exact keywords.
 
 ---
 
-### Better Structured AI Responses
+### Structured LLM Output
 
-The LLM can be upgraded to return structured JSON instead of plain text.
+The LLM can be upgraded to return strict JSON instead of plain text.
 
 Example:
 
@@ -148,27 +434,39 @@ Example:
 }
 ```
 
-This would make the backend more scalable and easier to extend.
+This would make tool routing more reliable and easier to extend.
 
 ---
 
-### Improved Frontend
+### Enhanced Memory System
 
-The Streamlit frontend can be enhanced with:
+Current memory stores only:
 
-- chat-style interface
-- conversation history
-- cards with images
-- animations/loading states
-- dark/light mode
-- better UI styling
-- sidebar navigation
+- user message
+- detected intent
+
+Future versions could also store:
+
+- extracted entities
+- filters
+- destinations
+- modifiers
+- previous results
+
+This would allow more advanced follow-up conversations such as:
+
+```text
+find flights to london
+only emirates
+show cheaper ones
+sort by lowest price
+```
 
 ---
 
 ### Additional Tools
 
-The architecture allows easy expansion with new tools such as:
+The architecture can be expanded with more tools such as:
 
 - refund requests
 - complaint handling
@@ -179,6 +477,31 @@ The architecture allows easy expansion with new tools such as:
 Each tool can remain modular in its own file.
 
 ---
+
+### Improved Frontend
+
+The Streamlit frontend can be enhanced with:
+
+- chat history display
+- cards with images
+- sidebar prompt examples
+- loading indicators
+- improved styling
+- responsive layout
+
+---
+
+## Notes
+
+This project uses Streamlit instead of Flutter for the frontend to keep the prototype lightweight and easy to run locally.
+
+The backend architecture still demonstrates the main required AI workflow:
+
+- local LLM intent detection
+- tool routing
+- structured JSON responses
+- short-term memory
+- offline operation
 
 ## Offline Operation
 
