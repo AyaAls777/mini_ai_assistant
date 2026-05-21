@@ -307,20 +307,19 @@ curl -X POST "http://127.0.0.1:8000/chat" \
 
 ---
 
-## Postman Instructions
+## Swagger API Testing
 
-1. Open Postman.
-2. Create a new POST request.
-3. Enter this URL:
+FastAPI automatically provides interactive API documentation through Swagger UI.
+
+After starting the backend server, open:
 
 ```text
-http://127.0.0.1:8000/chat
+http://127.0.0.1:8000/docs
 ```
 
-4. Go to the Body tab.
-5. Select raw.
-6. Select JSON.
-7. Enter a request body such as:
+Swagger allows testing API endpoints directly from the browser without needing Postman.
+
+### Example Request
 
 ```json
 {
@@ -328,7 +327,14 @@ http://127.0.0.1:8000/chat
 }
 ```
 
-8. Click Send.
+### Steps
+
+1. Open Swagger docs.
+2. Expand the `/chat` endpoint.
+3. Click `Try it out`.
+4. Enter a JSON request body.
+5. Click `Execute`.
+6. View the JSON response returned by the backend.
 
 ---
 
