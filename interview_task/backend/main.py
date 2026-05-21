@@ -21,19 +21,16 @@ from services.ollama_service import detect_intent
 from tools.flight_tool import flight_tool, get_cheaper_flights
 from tools.hotel_tool import hotel_tool, get_cheaper_hotels
 
-#Import FastAPI
-from fastapi import FastAPI
 
-#Import BaseModel for request body structure
+from fastapi import FastAPI
 from pydantic import BaseModel
 
 #Store conversation memory
 conversation_memory = []
 
-# Create FastAPI app
 app = FastAPI()
 
-# Function to save conversation memory
+#Function to save conversation memory
 def save_memory(user_message, intent):
 
     # Add new conversation turn
@@ -42,17 +39,14 @@ def save_memory(user_message, intent):
         "intent": intent
     })
 
-    # If memory becomes larger than 5
     if len(conversation_memory) > 5:
 
-        # Remove oldest memory item
         conversation_memory.pop(0) #pop(0) removes the first item in the list, which is the oldest conversation turn, to keep the memory size manageable
         
         print(conversation_memory) #prints to the console for debugging purpose 
 
 def get_last_intent():
 
-    # If memory is empty, return nothing
     if len(conversation_memory) == 0:
         return None
 
@@ -61,13 +55,11 @@ def get_last_intent():
 
 
 # Create the request schema
-# This defines what data frontend sends
 class ChatRequest(BaseModel): #ChatRequest is the name of the schema, it inherits from BaseModel which is a Pydantic class that allows us to define the structure of the data we expect in the request body
 
     # User message
     message: str
 
-#POST endpoint to receive chat messages from frontend
 @app.post("/chat")
 def chat(request: ChatRequest): #request is the data sent from frontend, it should match the ChatRequest schema
 
@@ -99,13 +91,10 @@ def chat(request: ChatRequest): #request is the data sent from frontend, it shou
     # If AI detects hotel search intent
     if intent == "hotel_search":
 
-        # Run hotel tool
         return hotel_tool()
     
-    # If AI detects flight search intent
     if intent == "flight_search":
 
-        # Run flight tool
         return flight_tool()
 
     # Default response
